@@ -1,0 +1,71 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pre-sync-check-tenant-3scale-uat
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      serviceAccountName: hook-sa
+      containers:
+        - name: check-apimanager-tenant
+          image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+          command:
+            - /bin/bash
+            - -c
+            - |
+              echo "Esperando que el APIManager y el Tenant estén disponibles..."
+              APIMANAGER="apimanager"
+              TENANT="3scale-uat"
+              NAMESPACE="3scale"
+              TENANT_SECRET="uat-tenant-secret"
+
+              for i in {1..60}; do
+                APIMANAGER_EXISTS=$(oc -n ${NAMESPACE} get apimanager ${APIMANAGER} --ignore-not-found)
+                if [[ -z "${APIMANAGER_EXISTS}" ]]; then
+                  echo "[Intento $i] APIManager aún no existe. Esperando 30s..."
+                  sleep 30
+                  continue
+                fi
+
+                APIMANAGER_AVAILABLE=$(oc -n ${NAMESPACE} get apimanager ${APIMANAGER} -o jsonpath='{.status.conditions[?(@.type=="Available")].status}')
+                if [[ "${APIMANAGER_AVAILABLE}" != "True" ]]; then
+                  echo "[Intento $i] APIManager no está listo aún. Esperando 30s..."
+                  sleep 30
+                  continue
+                fi
+
+                TENANT_EXISTS=$(oc -n ${NAMESPACE} get tenant ${TENANT} --ignore-not-found)
+                if [[ -z "${TENANT_EXISTS}" ]]; then
+                  echo "[Intento $i] Tenant ${TENANT} aún no existe. Esperando 30s..."
+                  sleep 30
+                  continue
+                fi
+
+                TENANT_READY=$(oc -n ${NAMESPACE} get tenant ${TENANT} -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}')
+                if [[ "${TENANT_READY}" != "True" ]]; then
+                  echo "[Intento $i] Tenant ${TENANT} no está listo aún. Esperando 30s..."
+                  sleep 30
+                  continue
+                fi
+
+                echo "APIManager y Tenant están disponibles. Continuando..."
+                
+                ADMIN_URL=$(oc -n ${NAMESPACE} get secret ${TENANT_SECRET} -o jsonpath='{.data.adminURL}' | base64 -d)
+                TOKEN=$(oc -n ${NAMESPACE} get secret ${TENANT_SECRET} -o jsonpath='{.data.token}' | base64 -d)
+                ADMIN_PORTAL_URL="https://${TOKEN}@${ADMIN_URL#https://}"
+                
+                echo "Generando el secreto  ${TENANT_SECRET}..."
+                if oc get secret ${TENANT_SECRET} &>/dev/null; then
+                  oc delete secret ${TENANT_SECRET}
+                fi
+                oc create secret generic ${TENANT_SECRET} --from-literal AdminPortalURL="${ADMIN_PORTAL_URL}"
+
+                exit 0
+              done
+
+              echo "Timeout esperando que APIManager y Tenant estén listos"
+              exit 1
+      restartPolicy: Never
