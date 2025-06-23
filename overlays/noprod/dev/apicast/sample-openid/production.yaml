@@ -1,7 +1,7 @@
 apiVersion: apps.3scale.net/v1alpha1
 kind: APIcast
 metadata:
-  name: sample-openid-uat-production
+  name: sample-openid-dev-production
 spec:
   logLevel: info
   pathRoutingEnabled: false
@@ -18,13 +18,13 @@ spec:
     #  cpu: 500m
     #  memory: 64Mi
   exposedHost:
-    host: bs-hello-java-openid-uat-staging.apps.cluster-z44mr.z44mr.sandbox3222.opentlc.com
+    host: bs-hello-java-openid-dev-staging.apps.cluster-z44mr.z44mr.sandbox3222.opentlc.com
     tls:
       - {}
   extendedMetrics: true
   deploymentEnvironment: production
   adminPortalCredentialsRef:
-    name: uat-tenant-secret
+    name: dev-tenant-secret
   oidcLogLevel: info
   timezone: America/Lima
   replicas: 1

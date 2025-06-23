@@ -1,7 +1,7 @@
 apiVersion: apps.3scale.net/v1alpha1
 kind: APIcast
 metadata:
-  name: sample-openid-staging
+  name: sample-openid-uat-staging
 spec:
   logLevel: info
   pathRoutingEnabled: false
@@ -18,7 +18,7 @@ spec:
     #  cpu: 500m
     #  memory: 64Mi
   exposedHost:
-    host: bs-hello-java-openid.apps.cluster-z44mr.z44mr.sandbox3222.opentlc.com
+    host: bs-hello-java-openid-uat.apps.cluster-z44mr.z44mr.sandbox3222.opentlc.com
     tls:
       - {}
   extendedMetrics: true
