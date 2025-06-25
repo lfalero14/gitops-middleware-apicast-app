@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: pre-sync-check-tenant-3scale-uat
+  name: pre-sync-check-tenant-3scale-testing
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -18,9 +18,9 @@ spec:
             - |
               echo "Esperando que el APIManager y el Tenant estén disponibles..."
               APIMANAGER="apimanager"
-              TENANT="3scale-uat"
+              TENANT="3scale-testing"
               NAMESPACE="3scale"
-              TENANT_SECRET="uat-tenant-secret"
+              TENANT_SECRET="testing-tenant-secret"
 
               for i in {1..60}; do
                 APIMANAGER_EXISTS=$(oc -n ${NAMESPACE} get apimanager ${APIMANAGER} --ignore-not-found)

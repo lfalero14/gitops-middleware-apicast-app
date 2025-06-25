@@ -1,7 +1,7 @@
 apiVersion: apps.3scale.net/v1alpha1
 kind: APIcast
 metadata:
-  name: sample-key-pair-production
+  name: sample-openid-testing-production
 spec:
   logLevel: info
   pathRoutingEnabled: false
@@ -18,13 +18,13 @@ spec:
     #  cpu: 500m
     #  memory: 64Mi
   exposedHost:
-    host: bs-hello-java-key-pair-staging.apps.cluster-z44mr.z44mr.sandbox3222.opentlc.com
+    host: openid-testing-staging.apps.ocpnprod7.gp.inet
     tls:
       - {}
   extendedMetrics: true
   deploymentEnvironment: production
   adminPortalCredentialsRef:
-    name: dev-tenant-secret
+    name: testing-tenant-secret
   oidcLogLevel: info
   timezone: America/Lima
   replicas: 1

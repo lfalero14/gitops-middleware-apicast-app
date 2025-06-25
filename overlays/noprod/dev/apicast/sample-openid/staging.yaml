@@ -18,7 +18,7 @@ spec:
     #  cpu: 500m
     #  memory: 64Mi
   exposedHost:
-    host: bs-hello-java-openid-dev.apps.cluster-z44mr.z44mr.sandbox3222.opentlc.com
+    host: openid-dev.apps.ocpnprod7.gp.inet
     tls:
       - {}
   extendedMetrics: true
